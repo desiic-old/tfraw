@@ -1,6 +1,6 @@
 class t:
 
-  def rm_model_dir:
+  def rm_model_dir():
     pass
   #end def
 #end class
