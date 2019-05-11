@@ -1,7 +1,7 @@
 class t:
 
   def rm_model_dir():
-    pass
+    print(999);
   #end def
 #end class
 
