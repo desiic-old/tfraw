@@ -38,7 +38,7 @@ class t: #short for tensorflow
   \brief Remove a TensorFlow model dir
   """
   def rm_model_dir(Model_Dir):
-    Out=sp.check_output(["rm","-rf",Model_Dir,"2>&1"]);
+    Out=sp.check_output(["rm","-r",Model_Dir,"2>&1"]);
     if len(Out)>0:
       log(Out);
   #end def
