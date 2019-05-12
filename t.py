@@ -40,10 +40,12 @@ class t: #short for tensorflow
   def rm_model_dir(Model_Dir):
     try:
       Out=sp.check_output(["rm","-r",Model_Dir],stderr=sp.STDOUT);
-      if len(Out)>0:
-        log(Out);
+      #if len(Out)>0:
+      log(Out);
+      print(Out);
     except Exception as Err:
       log(Err);
+      print(Out);
     #end try    
   #end def
 
