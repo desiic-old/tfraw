@@ -42,7 +42,7 @@ class t: #short for tensorflow
       Out=sp.check_output(["rm","-r",Model_Dir],stderr=sp.STDOUT);
       if len(Out)>0:
         log(Out);
-    except Error as Err:
+    except Exception as Err:
       log(Err);
     #end try    
   #end def
