@@ -45,7 +45,9 @@ class t:
   \brief Initialise TensorFlow
   """
   def init():
-    tf.logging.set_verbosity(tf.logging.INFO);
+    global log;
+    tf.logging.set_verbosity(tf.logging.INFO);    
+    log = tf.logging.info;
   #end def
 #end class
 
