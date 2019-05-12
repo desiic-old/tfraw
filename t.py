@@ -4,7 +4,7 @@
 """
 
 #core
-import os;
+import os,sys;
 import pprint     as pp;
 import subprocess as sp;
 
@@ -42,8 +42,8 @@ class t: #short for tensorflow
       Out=sp.check_output(["rm","-r",Model_Dir],stderr=sp.STDOUT);
       if len(Out)>0:
         log(Out);
-    except Err:
-      log(Err);
+    except:
+      log(sys.exc_info());
     #end try
   #end def
 
