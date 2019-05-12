@@ -12,12 +12,8 @@ import subprocess as sp;
 import numpy      as np;
 import tensorflow as tf;
 
-#shortcut
-log    = tf.logging.info;
-pprint = t.pprint;
-halt   = t.halt;
-rm_model_dir = t.rm_model_dir;
-init         = t.init;
+#shortcuts
+log = tf.logging.info;
 
 """
 \brief TensorFlow Raw library main class
@@ -52,5 +48,11 @@ class t:
     tf.logging.set_verbosity(tf.logging.INFO);    
   #end def
 #end class
+
+#export shortcuts
+pprint       = t.pprint;
+halt         = t.halt;
+rm_model_dir = t.rm_model_dir;
+init         = t.init;
 
 #end of file
