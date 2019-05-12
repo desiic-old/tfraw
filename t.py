@@ -12,6 +12,7 @@ import subprocess as sp;
 #libs
 import numpy      as np;
 import tensorflow as tf;
+from   random     import *;
 
 #custom classes
 from tfraw.dotdict import *;
@@ -84,28 +85,30 @@ class t: #short for tensorflow
     #make the network
     #input layer, None is batch dimension (any batch_size)
     Net = tf.placeholder(shape=[None,Num_Inputs], dtype=tf.float32,
-                         name="inputs");
+                         name="Inputs");
     
     #hidden layers
     I = 1;
     for Num_Units in Hidden_Units:
       Net = tf.layers.dense(inputs=Net, units=Num_Units, activation=Activation, 
-                            name="hidden"+str(I));
+                            name="Hidden"+str(I));
       I += 1;
     #end for
 
     #output layer
-    Outputs = tf.layers.dense(inputs=Net, units=Num_Outputs, activation=Output_Activation, 
-                              name="outputs");
+    Dropout = tf.layers.dropout(inputs=Net, rate=0.1, training=True);
+    Outputs = tf.layers.dense(inputs=Dropout, units=Num_Outputs, activation=Output_Activation, 
+                              name="Outputs");
+    Probs = tf.nn.softmax(Outputs);
 
     #compute loss, None is batch dimension (any batch_size)   
-    Probs = tf.placeholder(shape=[None,Num_Outputs], dtype=tf.float32,
-                           name="probs");
-    Loss  = tf.reduce_sum(tf.square(Probs-Outputs));
+    Expected_Probs = tf.placeholder(shape=[None,Num_Outputs], dtype=tf.float32,
+                                    name="Expecteds");
+    Loss  = tf.reduce_sum(tf.square(Expected_Probs-Probs));
     Train = Optimiser.minimize(Loss);
 
     #pass back model
-    Model = model(Sess,Outputs,Loss,Train,Model_Dir);    
+    Model = model(Sess,Num_Outputs,Outputs,Loss,Probs,Train,Model_Dir);    
     return Model;
   #end def
 
@@ -118,7 +121,41 @@ class t: #short for tensorflow
   #end def
 
   """
-  \brief Convert feed_dict to tensor dict
+  \brief Close session
+  """
+  @staticmethod
+  def close_session():
+    Sess.close();
+  #end def
+
+  """
+  \brief Get a random batch from dataset
+  """
+  def get_rand_batch(Dataset,Batch_Size):
+    
+    #make a list to shuffle
+    List = [];
+    for I in range(len(Dataset["Inputs"])):
+      Input = Dataset["Inputs"][I];
+      Label = Dataset["Labels"][I];
+      List += [{"Input":Input, "Label":Label}];
+    #end for
+
+    #shuffle dataset
+    shuffle(List);
+
+    #get a batch
+    Batch = {"Inputs":[], "Labels":[]};
+    for I in range(Batch_Size):
+      Batch["Inputs"] += [List[I]["Input"]];
+      Batch["Labels"] += [List[I]["Label"]];
+    #end for
+
+    return Batch;
+  #end def
+
+  """
+  \brief Convert feed_dict to tensor dict (with :0 postfixes)
   """
   @staticmethod
   def feed2tensor(Feed_Dict=None):
@@ -145,6 +182,8 @@ init_ml         = t.init_ml;
 rm_model_dir    = t.rm_model_dir;
 build_dnn_model = t.build_dnn_model;
 start_session   = t.start_session;
+close_session   = t.close_session;
+get_rand_batch  = t.get_rand_batch;
 feed2tensor     = t.feed2tensor;
 run_flow        = t.run_flow;
 
