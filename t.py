@@ -45,7 +45,7 @@ class t: #short for tensorflow
   \brief Remove a TensorFlow model dir
   """
   def rm_model_dir(Model_Dir):
-    if (!os.path.isfile(Model_Dir+"/checkpoint")):
+    if (not os.path.isfile(Model_Dir+"/checkpoint")):
       log("Directory {} doesn't seem to be a model dir!".format(Model_Dir));
       return;
     end if
