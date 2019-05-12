@@ -38,13 +38,13 @@ class t: #short for tensorflow
   \brief Remove a TensorFlow model dir
   """
   def rm_model_dir(Model_Dir):
-    #try:
+    try:
       Out=sp.check_output(["rm","-r",Model_Dir],stderr=sp.STDOUT);
       if len(Out)>0:
         log(Out);
-    #except:
-      log(sys.exc_info());
-    #end try
+    except Error as Err:
+      log(Err);
+    #end try    
   #end def
 
   """
