@@ -18,7 +18,7 @@ log = tf.logging.info;
 """
 \brief TensorFlow Raw library main class
 """
-class t:
+class t: #short for tensorflow
 
   """
   \brief Pretty print
@@ -38,7 +38,9 @@ class t:
   \brief Remove a TensorFlow model dir
   """
   def rm_model_dir(Model_Dir):
-    sp.check_output(["rm","-rf",Model_Dir]);
+    Out=sp.check_output(["rm","-rf",Model_Dir]);
+    if len(Out)>0:
+      log(Out);
   #end def
 
   """
