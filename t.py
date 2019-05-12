@@ -35,11 +35,17 @@ class t: #short for tensorflow
   #end def
 
   """
+  \brief Initialise TensorFlow
+  """
+  def init_ml():
+    tf.logging.set_verbosity(tf.logging.INFO);    
+  #end def
+
+  """
   \brief Remove a TensorFlow model dir
   """
   def rm_model_dir(Model_Dir):
     if True: #(!os.path.isfile(Model_Dir+"/checkpoint")):
-      log(9);
       log("Directory {} doesn't seem a model dir!".format(Model_Dir));
       return;
     #end if
@@ -53,14 +59,7 @@ class t: #short for tensorflow
       log(Err);
       print(Err);
     #end try    
-  #end def
-
-  """
-  \brief Initialise TensorFlow
-  """
-  def init_ml():
-    tf.logging.set_verbosity(tf.logging.INFO);    
-  #end def
+  #end def 
 #end class
 
 #export shortcuts
