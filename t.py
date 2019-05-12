@@ -39,6 +39,7 @@ class t: #short for tensorflow
   """
   def rm_model_dir(Model_Dir):
     if True: #(!os.path.isfile(Model_Dir+"/checkpoint")):
+      log(9);
       log("Directory {} doesn't seem a model dir!".format(Model_Dir));
       return;
     #end if
