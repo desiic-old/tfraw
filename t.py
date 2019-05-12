@@ -13,7 +13,8 @@ import numpy      as np;
 import tensorflow as tf;
 
 #shortcut
-log = tf.logging.info;
+log    = tf.logging.info;
+pprint = None;
 
 """
 \brief TensorFlow Raw library main class
