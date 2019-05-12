@@ -72,7 +72,7 @@ class model:
   \brief Save session and model data
   """
   def save_model(this, Global_Step=None):
-    Saver = tf.train.Saver();
+    Saver = tf.train.Saver(); #all vars
     Saver.save(this.Sess, "{}/model.ckpt".format(this.Model_Dir), global_step=Global_Step);
   #end def
 
