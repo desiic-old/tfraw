@@ -45,7 +45,7 @@ class t: #short for tensorflow
       print(Out);
     except Exception as Err:
       log(Err);
-      print(Out);
+      print(Err);
     #end try    
   #end def
 
