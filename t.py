@@ -14,7 +14,10 @@ import tensorflow as tf;
 
 #shortcut
 log    = tf.logging.info;
-pprint = None;
+pprint = t.pprint;
+halt   = t.halt;
+rm_model_dir = t.rm_model_dir;
+init         = t.init;
 
 """
 \brief TensorFlow Raw library main class
@@ -46,11 +49,7 @@ class t:
   \brief Initialise TensorFlow
   """
   def init():
-    global log,pprint;
     tf.logging.set_verbosity(tf.logging.INFO);    
-
-    log    = tf.logging.info;
-    pprint = t.pprint;
   #end def
 #end class
 
