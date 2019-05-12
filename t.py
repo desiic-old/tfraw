@@ -49,4 +49,7 @@ class t:
   #end def
 #end class
 
+#shortcuts
+t.log = tf.logging.info;
+
 #end of file
