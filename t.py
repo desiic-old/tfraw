@@ -52,7 +52,7 @@ class t: #short for tensorflow
   """
   \brief Initialise TensorFlow
   """
-  def init():
+  def init_ml():
     tf.logging.set_verbosity(tf.logging.INFO);    
   #end def
 #end class
