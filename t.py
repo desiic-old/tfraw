@@ -61,6 +61,6 @@ class t: #short for tensorflow
 pprint       = t.pprint;
 halt         = t.halt;
 rm_model_dir = t.rm_model_dir;
-init         = t.init_ml;
+init_ml      = t.init_ml;
 
 #end of file
