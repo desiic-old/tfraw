@@ -2,7 +2,7 @@
 import sys;
 
 #custom paths to modules
-sys.path.append("."); #parent dir of 'tfraw' dir
+sys.path.append(".."); #parent dir of 'tfraw' dir
 
 #custom modules
 from tfraw.t import *;
