@@ -1,13 +1,21 @@
+/*!
+\file
+\brief Simple network to learn XOR, using TensorFlow C++ APIs.
+       Build TensorFlow .so files: https://github.com/FloopCZ/tensorflow_cc
+       C++ TensorFlow example: https://matrices.io/training-a-deep-neural-network-using-only-tensorflow-c
+       Related blog article: https://tecfront.blogspot.com/2019/04/the-treasured-or-dnn-in-tensorflow-c.html
+*/
+
 //c++ core libs
 #include <iostream>
 #include <vector>
 
 //tensorflow libs
-#include <tensorflow/cc/client/client_session.h>
-#include <tensorflow/cc/framework/gradients.h>
-#include <tensorflow/cc/ops/standard_ops.h>
-#include <tensorflow/core/framework/tensor.h>
-#include <tensorflow/core/framework/tensor_shape.h>
+#include <tensorflow/cc/ops/standard_ops.h>         //operations
+#include <tensorflow/cc/framework/gradients.h>      //optimisers
+#include <tensorflow/core/framework/tensor.h>       //data
+#include <tensorflow/core/framework/tensor_shape.h> //data
+#include <tensorflow/cc/client/client_session.h>    //run
 
 //namespaces
 using namespace std;
@@ -17,103 +25,109 @@ using namespace tensorflow::ops;
 //shortcuts
 namespace tf = tensorflow;
 
-//PROGRAMME ENTRY POINT
+//PROGRAMME ENTRY POINT=========================================================
 /*!
 \brief Main function
 */
 int main() {
-  Scope scope = Scope::NewRootScope();
+  Scope R = Scope::NewRootScope();
 
+  //NETWORK STRUCTURE-----------------------------------------------------------
   //input for network, and input for loss function
-  auto x = Placeholder(scope, DT_FLOAT);
-  auto y = Placeholder(scope, DT_FLOAT);
+  //not fixed dimensions
+  auto Input    = Placeholder(R, DT_FLOAT);
+  auto Expected = Placeholder(R, DT_FLOAT);
 
-  //create single layer of single neuron with 
-  //random weights & bias
-  //2 inputs, 1 neuron
-  auto layer1    = Variable(scope, {2,2}, DT_FLOAT);
-  auto assign_l1 = Assign(scope, layer1,  
-                   RandomNormal(scope,{2,2},DT_FLOAT));
+  //layer variables
+  auto Weight1 = Variable(R, {2,2}, DT_FLOAT); //2 inputs, 2 neurons
+  auto Bias1   = Variable(R, {2},   DT_FLOAT); //for 2 neurons
 
-  auto bias1     = Variable(scope, {2}, DT_FLOAT);
-  auto assign_b1 = Assign(scope, bias1,  
-                   RandomNormal(scope,{2},DT_FLOAT));
+  auto Weight2 = Variable(R, {2,1}, DT_FLOAT); //2 inputs, 1 neuron
+  auto Bias2   = Variable(R, {1},   DT_FLOAT); //for 1 neuron  
 
-  auto layer2    = Variable(scope, {2,1}, DT_FLOAT);
-  auto assign_l2 = Assign(scope, layer2,  
-                   RandomNormal(scope,{2,1},DT_FLOAT));
+  //init ops for layer variables
+  auto Init_W1 = Assign(R, Weight1, RandomNormal(R,{2,2},DT_FLOAT));
+  auto Init_B1 = Assign(R, Bias1,   RandomNormal(R,{2},  DT_FLOAT));
+  auto Init_W2 = Assign(R, Weight2, RandomNormal(R,{2,1},DT_FLOAT));
+  auto Init_B2 = Assign(R, Bias2,   RandomNormal(R,{1},  DT_FLOAT));
 
-  auto bias2     = Variable(scope, {1}, DT_FLOAT);
-  auto assign_b2 = Assign(scope, bias2,  
-                   RandomNormal(scope,{1},DT_FLOAT));
-
-  //training steps (only 1)
-  auto step1 = Tanh(scope, Add(scope, 
-    MatMul(scope,x,layer1), 
-    bias1
-  ));
-  auto step2 = Tanh(scope, Add(scope, 
-    MatMul(scope,step1,layer2), 
-    bias2
-  ));
+  //full layers with weights, biases, and activation functions
+  auto Layer1 = Tanh(R, Add(R, MatMul(R,Input, Weight1),Bias1));
+  auto Layer2 = Tanh(R, Add(R, MatMul(R,Layer1,Weight2),Bias2));
 
   //loss function
-  auto cost = ReduceSum(scope, Square(scope,  
-              Sub(scope,y,step2)), {0,1});
+  auto Loss = Sum(R, Square(R, Sub(R,Expected,Layer2)), {0,1});
 
   //optimiser function
-  //learning rate: 0.01
-  //function:      gradient descent
-  vector<Output> grad_outputs;
-  TF_CHECK_OK(AddSymbolicGradients(scope, {cost}, 
-              {layer1,layer2,bias1,bias2}, &grad_outputs));
-  auto a1 = ApplyGradientDescent(scope, layer1,  
-       Cast(scope,0.01,DT_FLOAT), {grad_outputs[0]});
-  auto a2 = ApplyGradientDescent(scope, layer2,  
-       Cast(scope,0.01,DT_FLOAT), {grad_outputs[1]});
-  auto a3 = ApplyGradientDescent(scope, bias1,  
-       Cast(scope,0.01,DT_FLOAT), {grad_outputs[2]});
-  auto a4 = ApplyGradientDescent(scope, bias2,  
-       Cast(scope,0.01,DT_FLOAT), {grad_outputs[3]});
+  vector<Output> Grad_Outputs;
+  TF_CHECK_OK(
+    AddSymbolicGradients(R, {Loss}, {Weight1,Weight2,Bias1,Bias2}, &Grad_Outputs)
+  );
+  auto Optim1 = ApplyGradientDescent(R, Weight1, Cast(R,0.01,DT_FLOAT), {Grad_Outputs[0]});
+  auto Optim2 = ApplyGradientDescent(R, Weight2, Cast(R,0.01,DT_FLOAT), {Grad_Outputs[1]});
+  auto Optim3 = ApplyGradientDescent(R, Bias1,   Cast(R,0.01,DT_FLOAT), {Grad_Outputs[2]});
+  auto Optim4 = ApplyGradientDescent(R, Bias2,   Cast(R,0.01,DT_FLOAT), {Grad_Outputs[3]});
 
+  //RUN THE NETWORK-------------------------------------------------------------
   //create session to start training
-  ClientSession session(scope);
-  vector<Tensor> outputs;
-  TF_CHECK_OK(session.Run({assign_l1,assign_l2,assign_b1,assign_b2}, nullptr));
+  ClientSession Sess(R);
+  TF_CHECK_OK(
+    Sess.Run({Init_W1,Init_W2,Init_B1,Init_B2}, nullptr)
+  );
 
   //training data
-  Tensor OR_X = Tensor(DT_FLOAT, TensorShape({4,2}));
-  Tensor OR_Y = Tensor(DT_FLOAT, TensorShape({4,1}));
+  Tensor Inputs = Tensor(DT_FLOAT, TensorShape({4,2}));
+  Tensor Labels = Tensor(DT_FLOAT, TensorShape({4,1}));
 
-  OR_X.flat<float>()(0) = 0; //0 | 0
-  OR_X.flat<float>()(1) = 0;
-  OR_X.flat<float>()(2) = 0; //0 | 1
-  OR_X.flat<float>()(3) = 1;
-  OR_X.flat<float>()(4) = 1; //1 | 0
-  OR_X.flat<float>()(5) = 0;
-  OR_X.flat<float>()(6) = 1; //1 | 1
-  OR_X.flat<float>()(7) = 1;
+  Inputs.flat<float>()(0) = 0; //0 ^ 0
+  Inputs.flat<float>()(1) = 0;
+  Inputs.flat<float>()(2) = 0; //0 ^ 1
+  Inputs.flat<float>()(3) = 1;
+  Inputs.flat<float>()(4) = 1; //1 ^ 0
+  Inputs.flat<float>()(5) = 0;
+  Inputs.flat<float>()(6) = 1; //1 ^ 1
+  Inputs.flat<float>()(7) = 1;
 
-  OR_Y.flat<float>()(0) = 0; //0 | 0 == 0
-  OR_Y.flat<float>()(1) = 1; //0 | 1 == 1
-  OR_Y.flat<float>()(2) = 1; //1 | 0 == 1
-  OR_Y.flat<float>()(3) = 1; //1 | 1 == 1
+  Labels.flat<float>()(0) = 0; //0 ^ 0 == 0
+  Labels.flat<float>()(1) = 1; //0 ^ 1 == 1
+  Labels.flat<float>()(2) = 1; //1 ^ 0 == 1
+  Labels.flat<float>()(3) = 0; //1 ^ 1 == 0
 
-  //start trainging, 1 extra round 
-  //for printing at MAX_EPOCH
-  long MAX_EPOCH = 1000;
+  //start training
+  cout <<"\nTraining..." <<endl;
+  long Steps = 5000;  
+  vector<Tensor> Outputs;
 
-  for (long i=0; i<MAX_EPOCH+1; i++){
-    TF_CHECK_OK(session.Run({{x,OR_X}, {y,OR_Y}}, 
-                {cost}, &outputs)); //loss calc
+  for (long I=0; I<Steps; I++){
+    TF_CHECK_OK(
+      Sess.Run({{Input,Inputs}, {Expected,Labels}}, 
+               {Optim1,Optim2,Optim3,Optim4,Layer2}, nullptr)
+    );    
 
-    if (i%100 == 0)
-      cout <<"Loss after " <<i <<" steps " 
-           <<outputs[0].scalar<float>() <<endl;
+    //log after every 100 steps
+    if ((I+1)%100 == 0) {
+      TF_CHECK_OK(
+        Sess.Run({{Input,Inputs}, {Expected,Labels}}, 
+                 {Loss}, &Outputs)
+      );
+      cout <<"Loss after " <<I+1 <<" steps: " 
+           <<Outputs[0].scalar<float>() <<endl;
+    }//log
+  }//steps
 
-    //nullptr because the output from the run is useless, 
-    //just training again&again
-    TF_CHECK_OK(session.Run({{x,OR_X}, {y,OR_Y}}, 
-                {a1,a2,a3,a4,step2}, nullptr));
+  //start inference
+  cout <<"\nInferring the original training data..." <<endl;
+  Tensor Infer_Inputs = Tensor(DT_FLOAT, TensorShape({1,2}));
+
+  for (long I=0; I<4; I++){    
+    float X1 = Infer_Inputs.flat<float>()(0) = Inputs.flat<float>()(I*2);
+    float X2 = Infer_Inputs.flat<float>()(1) = Inputs.flat<float>()(I*2+1);
+
+    TF_CHECK_OK(
+      Sess.Run({{Input,Infer_Inputs}}, {Layer2}, &Outputs)
+    );
+    cout <<X1 <<" ^ " <<X2 <<" = " <<Outputs[0].scalar<float>() <<endl;
   }
-  }
+}//main
+
+//end of file

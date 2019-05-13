@@ -1,3 +1,6 @@
+#reference:
+#https://github.com/FloopCZ/tensorflow_cc
+
 #cmake version
 cmake_minimum_required(VERSION 3.10)
 
