@@ -16,7 +16,7 @@ from tfraw.t import *;
 """
 \brief Model class
 """
-class model:
+class dnn_classifier:
   Sess        = None; #session
   Num_Classes = None; #number of classes
   Outputs     = None; #tensor

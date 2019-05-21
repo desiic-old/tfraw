@@ -2,7 +2,7 @@
 import sys;
 
 #custom paths to modules
-sys.path.append(".."); #parent dir of 'tfraw' dir
+sys.path.append("../../src"); #parent dir of 'tfraw' dir
 
 #custom modules
 from tfraw.t import *;
@@ -13,7 +13,7 @@ init_ml();
 Model_Dir = "/tmp/aaa-tf-prog";
 
 #create model
-Model = build_dnn_model(
+Model = build_dnn_classifier(
   Num_Inputs   = 2,
   Hidden_Units = [4],
   Num_Outputs  = 2, #to match num classes,

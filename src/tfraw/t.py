@@ -15,8 +15,8 @@ import tensorflow as tf;
 from   random     import *;
 
 #custom classes
-from tfraw.dotdict import *;
-from tfraw.model   import *;
+from dotdict                  import *;
+from tfraw.ann.dnn_classifier import *;
 
 #shortcuts
 log  = tf.logging.info;
@@ -78,9 +78,9 @@ class t: #short for tensorflow
   \brief Build DNN model
   """
   @staticmethod
-  def build_dnn_model(Num_Inputs,Hidden_Units,Num_Outputs,
+  def build_dnn_classifier(Num_Inputs,Hidden_Units,Num_Outputs,
   Activation=tf.nn.relu, Output_Activation=None, #None is identity
-  Optimiser=tf.train.AdamOptimizer(1e-3), Model_Dir="/tmp/tfraw-model"): 
+  Optimiser=tf.train.AdamOptimizer(1e-3), Model_Dir="/tmp/tfraw-dnn-classifier"): 
 
     #make the network
     #input layer, None is batch dimension (any batch_size)
@@ -108,7 +108,7 @@ class t: #short for tensorflow
     Train = Optimiser.minimize(Loss);
 
     #pass back model
-    Model = model(Sess,Num_Outputs,Outputs,Loss,Probs,Train,Model_Dir);    
+    Model = dnn_classifier(Sess,Num_Outputs,Outputs,Loss,Probs,Train,Model_Dir);    
     return Model;
   #end def
 
@@ -178,13 +178,13 @@ class t: #short for tensorflow
 #export shortcuts
 plog = t.plog;
 halt = t.halt;
-init_ml         = t.init_ml;
-rm_model_dir    = t.rm_model_dir;
-build_dnn_model = t.build_dnn_model;
-start_session   = t.start_session;
-close_session   = t.close_session;
-get_rand_batch  = t.get_rand_batch;
-feed2tensor     = t.feed2tensor;
-run_flow        = t.run_flow;
+init_ml              = t.init_ml;
+rm_model_dir         = t.rm_model_dir;
+build_dnn_classifier = t.build_dnn_classifier;
+start_session        = t.start_session;
+close_session        = t.close_session;
+get_rand_batch       = t.get_rand_batch;
+feed2tensor          = t.feed2tensor;
+run_flow             = t.run_flow;
 
 #end of file
